@@ -1,11 +1,14 @@
 set nocompatible              " be iMproved, required
 filetype off                  " required
+set clipboard=unnamed
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin() 
 " vundle manage vundle, required
-Plugin 'gmarik/vundle.vim'
+Plugin 'VundleVim/Vundle.vim'
 " tree file explorer
 Plugin 'scrooloose/nerdtree'
+" show git file status in nerd tree
+Plugin 'Xuyuanp/nerdtree-git-plugin'
 " intuative file searching
 Plugin 'wincent/command-t'
 "Plugin 'scrooloose/syntastic'
@@ -27,7 +30,42 @@ Plugin 'wincent/command-t'
 "let g:syntastic_auto_loc_list = 1
 "let g:syntastic_check_on_open = 1
 "let g:syntastic_check_on_wq = 0
+Bundle 'Powerline/powerline', {'rtp': 'powerline/bindings/vim/'}
+Plugin 'bling/vim-airline'
+let g:Powerline_symbols = 'fancy'
+set encoding=utf-8
+set t_Co=256
+set fillchars+=stl:\ ,stlnc:\
+set term=xterm-256color
+set termencoding=utf-8
+if !exists('g:airline_symbols')
+  let g:airline_symbols = {}
+endif
 
+if !exists('g:airline_symbols')
+  let g:airline_symbols = {}
+endif
+if has("gui_running")
+  let s:uname = system("uname")
+  if s:uname == "Darwin\n"
+    set guifont=Inconsolata\ for\ Powerline:h15
+  endif
+endif
+
+let g:airline_left_sep = '»'
+let g:airline_left_sep = '▶'
+let g:airline_right_sep = '«'
+let g:airline_right_sep = '◀'
+let g:airline_symbols.linenr = '␊'
+let g:airline_symbols.linenr = '␤'
+let g:airline_symbols.linenr = '¶'
+let g:airline_symbols.branch = '⎇'
+let g:airline_symbols.paste = 'ρ'
+let g:airline_symbols.paste = 'Þ'
+let g:airline_symbols.paste = '∥'
+let g:airline_symbols.whitespace = 'Ξ'
+let g:airline_left_sep=''
+let g:airline_right_sep=''
 " show git changes in the gutter of files
 Plugin 'airblade/vim-gitgutter'
 " colours
@@ -35,7 +73,8 @@ Plugin 'jelera/vim-javascript-syntax'
 " indenting plus a couple of extra features
 Plugin 'pangloss/vim-javascript'
 let g:javascript_enable_domhtmlcss = 1
-
+" automatically update ctag files:
+Plugin 'craigemery/vim-autotag'
 " syntax highlighting for jsx
 Plugin 'mxw/vim-jsx'
 "enables highlighting for .js files
@@ -49,6 +88,7 @@ Plugin 'kien/ctrlp.vim'
 Plugin 'tpope/vim-fugitive'
 " auto complete
 Plugin 'valloric/youcompleteme'
+let g:ycm_auto_trigger = 1
 " Editor config to use whats configured in projects
 Plugin 'editorconfig/editorconfig-vim'
 " jumping to files in js apps
@@ -68,11 +108,8 @@ let g:semanticBlacklistOverride = {
 Plugin 'tpope/vim-surround'
 " shortcuts to jump to next and previous quick fixes i.e gitgrep
 Plugin 'tpope/vim-unimpaired'
-" these are the tweaks i apply to ycm's config, you don't need them but they might help.
-" ycm gives you popups and splits by default that some people might not like, so these should tidy it up a bit for you.
-let g:ycm_add_preview_to_completeopt=0
-let g:ycm_confirm_extra_conf=0
-set completeopt-=preview
+
+Plugin 'ternjs/tern_for_vim'
 
 "Easy commenting via cc
 Plugin 'scrooloose/nerdcommenter'
@@ -83,7 +120,9 @@ filetype plugin indent on    " required
 set expandtab         " use spaces instead of tab characters
 set wrap              " wrap the display lines (not actual text)
 set linebreak
+set hlsearch
 set backspace=indent,eol,start
+set linespace=0
 set incsearch         " show matching search results as typing
 set ruler             " show row and column in status bar
 set wildmenu          " nicer tab completion for :ex commands
@@ -134,15 +173,27 @@ imap <c-return> <cr><cr><c-o>k<tab>
 "nerdtree settings
  map <c-n> :NERDTreeToggle<cr>
  map <leader>f :NERDTreeFind<cr>
+"turn off highlighted search
+ nmap <silent> ,/ :nohlsearch<CR>
+ set pastetoggle=<F2>
 
 let g:ctrlp_user_command = ['.git/', 'git --git-dir=%s/.git ls-files -oc --exclude-standard']
 let g:ctrlp_map = '<c-p>'
 let g:ctrlp_dont_split = 'nerd'
 " du fto undo diff changes in vim fugative
 nmap du :wincmd w<cr>:normal u<cr>:wincmd w<cr>
+" open Gstatus in a new tab
+nnoremap <Leader>gs :Gstatus<cr><c-w>T
+" close Gdiff and open Gstatus again
+nnoremap <Leader>gz :tabc<cr>:Gstatus<cr><c-w>T
 " quickly insert an empty new line without entering insert mode
 nnoremap <leader>o o<esc>
-"reopen last split tab > cntrl shift tab
-nmap <c-s-t> :vs<bar>:b#<cr>
+"map .. to go back in a git tree representation
 syntax on
-
+autocmd User fugitive 
+  \ if fugitive#buffer().type() =~# '^\%(tree\|blob\)$' |
+  \   nnoremap <buffer> .. :edit %:h<CR> |
+  \ endif
+"allows me to gBlame on relestate repos
+let g:fugitive_github_domains = ['git@git.realestate.com.au']
+:set shortmess=a
